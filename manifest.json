@@ -1,0 +1,14 @@
+{
+  "name": "採集ノート",
+  "short_name": "採集ノート",
+  "description": "気になったものをその場で一粒だけ記録する好みログ",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#EDEBE3",
+  "theme_color": "#5C6B4F",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

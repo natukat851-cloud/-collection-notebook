@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>採集ノート</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#5C6B4F">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EDEBE3;
+    --card:#F7F6F1;
+    --ink:#23241F;
+    --ink-soft:#5B594E;
+    --line:#C9C4B4;
+    --moss:#5C6B4F;
+    --moss-deep:#465138;
+    --clay:#8B5E4B;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0; padding:0; background:var(--paper); color:var(--ink);
+    font-family:'Zen Kaku Gothic New', -apple-system, sans-serif;
+    overscroll-behavior-y:none;
+  }
+  body{
+    padding-top:var(--safe-top);
+    padding-bottom:var(--safe-bottom);
+    min-height:100vh;
+  }
+  header{
+    padding:22px 20px 14px;
+    border-bottom:1px solid var(--line);
+  }
+  h1{
+    font-family:'Shippori Mincho', serif;
+    font-weight:700;
+    font-size:22px;
+    margin:0 0 4px;
+    letter-spacing:.04em;
+  }
+  .sub{
+    font-size:12.5px;
+    color:var(--ink-soft);
+    margin:0;
+  }
+  .count{
+    font-family:'Shippori Mincho', serif;
+    font-size:11px;
+    color:var(--ink-soft);
+    margin-top:6px;
+  }
+
+  main{ padding:16px 16px 140px; max-width:520px; margin:0 auto; }
+
+  /* --- input card --- */
+  .composer{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:14px;
+    margin-bottom:18px;
+  }
+  .composer textarea{
+    width:100%;
+    border:none;
+    background:transparent;
+    font-family:'Zen Kaku Gothic New', sans-serif;
+    font-size:15px;
+    resize:none;
+    outline:none;
+    color:var(--ink);
+    min-height:44px;
+    line-height:1.5;
+  }
+  .composer textarea::placeholder{ color:#9C9884; }
+
+  .chip-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    margin:10px 0 4px;
+  }
+  .chip{
+    font-size:12px;
+    padding:6px 12px;
+    border-radius:999px;
+    border:1px solid var(--line);
+    background:var(--paper);
+    color:var(--ink-soft);
+    cursor:pointer;
+    user-select:none;
+    white-space:nowrap;
+  }
+  .chip.active{
+    background:var(--moss);
+    border-color:var(--moss);
+    color:#fff;
+  }
+
+  .link-toggle{
+    font-size:12px;
+    color:var(--ink-soft);
+    text-decoration:underline;
+    background:none;
+    border:none;
+    padding:8px 0 0;
+    cursor:pointer;
+  }
+  .link-field{
+    display:none;
+    margin-top:8px;
+  }
+  .link-field.show{ display:block; }
+  .link-field input{
+    width:100%;
+    padding:8px 10px;
+    border:1px solid var(--line);
+    border-radius:8px;
+    font-size:13px;
+    background:#fff;
+    outline:none;
+    color:var(--ink);
+  }
+
+  .save-btn{
+    margin-top:12px;
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:10px;
+    background:var(--moss-deep);
+    color:#fff;
+    font-size:14px;
+    font-weight:700;
+    letter-spacing:.05em;
+    cursor:pointer;
+  }
+  .save-btn:active{ background:var(--moss); }
+  .save-btn:disabled{ background:#B9B6A8; }
+
+  /* --- filter row --- */
+  .filter-row{
+    display:flex;
+    gap:6px;
+    overflow-x:auto;
+    padding-bottom:4px;
+    margin-bottom:14px;
+    scrollbar-width:none;
+  }
+  .filter-row::-webkit-scrollbar{ display:none; }
+
+  /* --- specimen cards --- */
+  .empty{
+    text-align:center;
+    color:var(--ink-soft);
+    font-size:13px;
+    padding:60px 20px;
+    line-height:1.8;
+  }
+  .card{
+    position:relative;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-left:4px solid var(--moss);
+    border-radius:4px 10px 10px 4px;
+    padding:12px 14px 12px 16px;
+    margin-bottom:10px;
+  }
+  .card .no{
+    font-family:'Shippori Mincho', serif;
+    font-size:10.5px;
+    color:var(--clay);
+    letter-spacing:.05em;
+    margin-bottom:4px;
+    display:block;
+  }
+  .card .text{
+    font-size:14.5px;
+    line-height:1.6;
+    white-space:pre-wrap;
+    word-break:break-word;
+  }
+  .card .meta{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:8px;
+  }
+  .card .tag{
+    font-size:11px;
+    color:var(--ink-soft);
+  }
+  .card a.url{
+    font-size:11px;
+    color:var(--moss-deep);
+    text-decoration:underline;
+    word-break:break-all;
+  }
+  .card .del{
+    background:none;
+    border:none;
+    color:#B08A7E;
+    font-size:11px;
+    cursor:pointer;
+    padding:4px 0 0 8px;
+    flex-shrink:0;
+  }
+  .card .date{
+    font-size:10px;
+    color:#A7A392;
+  }
+
+  .export-bar{
+    position:fixed;
+    left:0; right:0; bottom:0;
+    padding:10px 16px calc(10px + var(--safe-bottom));
+    background:linear-gradient(to top, var(--paper) 70%, transparent);
+    display:flex;
+    justify-content:center;
+  }
+  .export-btn{
+    font-size:12px;
+    color:var(--ink-soft);
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:8px 18px;
+    cursor:pointer;
+  }
+  .toast{
+    position:fixed;
+    left:50%; bottom:70px;
+    transform:translateX(-50%);
+    background:var(--ink);
+    color:#fff;
+    font-size:12.5px;
+    padding:8px 16px;
+    border-radius:8px;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .25s;
+  }
+  .toast.show{ opacity:1; }
+</style>
+</head>
+<body>
+  <header>
+    <h1>採集ノート</h1>
+    <p class="sub">気になったものを、その場で一粒だけ拾っておく</p>
+    <p class="count" id="count"></p>
+  </header>
+
+  <main>
+    <div class="composer">
+      <textarea id="text" placeholder="何が気になった?(短くてOK)" rows="2"></textarea>
+      <div class="chip-row" id="catChips"></div>
+      <button class="link-toggle" id="linkToggle">+ リンクを追加</button>
+      <div class="link-field" id="linkField">
+        <input type="url" id="urlInput" placeholder="https://...">
+      </div>
+      <button class="save-btn" id="saveBtn" disabled>採集する</button>
+    </div>
+
+    <div class="filter-row" id="filterChips"></div>
+
+    <div id="list"></div>
+  </main>
+
+  <div class="export-bar">
+    <button class="export-btn" id="exportBtn">全件コピー(Claudeに渡す用)</button>
+  </div>
+  <div class="toast" id="toast"></div>
+
+<script>
+const CATEGORIES = ["食","ジュエリー","演劇","アニメ","ライフハック","お出かけ","仕事アイデア","その他"];
+const STORE_KEY = "saisyu-log-v1";
+
+let entries = [];
+let selectedCat = CATEGORIES[0];
+let activeFilter = "all";
+
+function load(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    entries = raw ? JSON.parse(raw) : [];
+  }catch(e){ entries = []; }
+}
+function persist(){
+  localStorage.setItem(STORE_KEY, JSON.stringify(entries));
+}
+
+function renderComposerChips(){
+  const row = document.getElementById('catChips');
+  row.innerHTML = '';
+  CATEGORIES.forEach(cat=>{
+    const b = document.createElement('button');
+    b.className = 'chip' + (cat===selectedCat ? ' active':'');
+    b.textContent = cat;
+    b.onclick = ()=>{ selectedCat = cat; renderComposerChips(); };
+    row.appendChild(b);
+  });
+}
+
+function renderFilterChips(){
+  const row = document.getElementById('filterChips');
+  row.innerHTML = '';
+  const all = document.createElement('button');
+  all.className = 'chip' + (activeFilter==='all' ? ' active':'');
+  all.textContent = 'すべて';
+  all.onclick = ()=>{ activeFilter='all'; renderFilterChips(); renderList(); };
+  row.appendChild(all);
+  CATEGORIES.forEach(cat=>{
+    const b = document.createElement('button');
+    b.className = 'chip' + (activeFilter===cat ? ' active':'');
+    b.textContent = cat;
+    b.onclick = ()=>{ activeFilter=cat; renderFilterChips(); renderList(); };
+    row.appendChild(b);
+  });
+}
+
+function fmtDate(iso){
+  const d = new Date(iso);
+  return `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
+
+function renderList(){
+  const list = document.getElementById('list');
+  const filtered = activeFilter==='all' ? entries : entries.filter(e=>e.cat===activeFilter);
+  document.getElementById('count').textContent = `全 ${entries.length} 件`;
+
+  if(filtered.length===0){
+    list.innerHTML = `<div class="empty">まだ何も採集されていません。<br>気になったものを、ひとつだけ書いてみてください。</div>`;
+    return;
+  }
+  list.innerHTML = '';
+  filtered.slice().reverse().forEach(e=>{
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <span class="no">No. ${String(e.seq).padStart(3,'0')}</span>
+      <div class="text"></div>
+      ${e.url ? `<div><a class="url" href="${e.url}" target="_blank" rel="noopener"></a></div>` : ''}
+      <div class="meta">
+        <span class="tag">${e.cat} ・ <span class="date">${fmtDate(e.created)}</span></span>
+        <button class="del">削除</button>
+      </div>
+    `;
+    card.querySelector('.text').textContent = e.text;
+    if(e.url){ card.querySelector('.url').textContent = e.url; }
+    card.querySelector('.del').onclick = ()=>{
+      entries = entries.filter(x=>x.id!==e.id);
+      persist(); renderList();
+    };
+    list.appendChild(card);
+  });
+}
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 1400);
+}
+
+// composer wiring
+const textEl = document.getElementById('text');
+const saveBtn = document.getElementById('saveBtn');
+const linkToggle = document.getElementById('linkToggle');
+const linkField = document.getElementById('linkField');
+const urlInput = document.getElementById('urlInput');
+
+textEl.addEventListener('input', ()=>{
+  saveBtn.disabled = textEl.value.trim().length===0;
+});
+linkToggle.addEventListener('click', ()=>{
+  linkField.classList.toggle('show');
+});
+
+saveBtn.addEventListener('click', ()=>{
+  const text = textEl.value.trim();
+  if(!text) return;
+  const nextSeq = entries.length ? entries[entries.length-1].seq + 1 : 1;
+  entries.push({
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2,6),
+    seq: nextSeq,
+    text,
+    cat: selectedCat,
+    url: urlInput.value.trim() || null,
+    created: new Date().toISOString()
+  });
+  persist();
+  textEl.value = '';
+  urlInput.value = '';
+  linkField.classList.remove('show');
+  saveBtn.disabled = true;
+  renderList();
+  showToast('採集しました');
+});
+
+document.getElementById('exportBtn').addEventListener('click', async ()=>{
+  const payload = JSON.stringify(entries, null, 2);
+  try{
+    await navigator.clipboard.writeText(payload);
+    showToast('コピーしました');
+  }catch(e){
+    showToast('コピーに失敗しました');
+  }
+});
+
+// init
+load();
+renderComposerChips();
+renderFilterChips();
+renderList();
+
+// service worker
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>
