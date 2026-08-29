@@ -377,7 +377,7 @@ const linkField = document.getElementById('linkField');
 const urlInput = document.getElementById('urlInput');
 
 function updateSaveState(){
-  saveBtn.disabled = textEl.value.trim().length===0 || !selectedCat;
+  saveBtn.disabled = textEl.value.trim().length===0;
 }
 textEl.addEventListener('input', updateSaveState);
 linkToggle.addEventListener('click', ()=>{
@@ -392,7 +392,7 @@ saveBtn.addEventListener('click', ()=>{
     id: Date.now().toString(36) + Math.random().toString(36).slice(2,6),
     seq: nextSeq,
     text,
-    cat: selectedCat,
+    cat: selectedCat || "未選択",
     url: urlInput.value.trim() || null,
     created: new Date().toISOString()
   });
