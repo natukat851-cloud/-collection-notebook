@@ -283,7 +283,7 @@ const CATEGORIES = ["食","ジュエリー","演劇","アニメ","ライフハ�
 const STORE_KEY = "saisyu-log-v1";
 
 let entries = [];
-let selectedCat = CATEGORIES[0];
+let selectedCat = null;
 let activeFilter = "all";
 
 function load(){
@@ -303,7 +303,7 @@ function renderComposerChips(){
     const b = document.createElement('button');
     b.className = 'chip' + (cat===selectedCat ? ' active':'');
     b.textContent = cat;
-    b.onclick = ()=>{ selectedCat = cat; renderComposerChips(); };
+    b.onclick = ()=>{ selectedCat = cat; renderComposerChips(); updateSaveState(); };
     row.appendChild(b);
   });
 }
@@ -376,9 +376,10 @@ const linkToggle = document.getElementById('linkToggle');
 const linkField = document.getElementById('linkField');
 const urlInput = document.getElementById('urlInput');
 
-textEl.addEventListener('input', ()=>{
-  saveBtn.disabled = textEl.value.trim().length===0;
-});
+function updateSaveState(){
+  saveBtn.disabled = textEl.value.trim().length===0 || !selectedCat;
+}
+textEl.addEventListener('input', updateSaveState);
 linkToggle.addEventListener('click', ()=>{
   linkField.classList.toggle('show');
 });
@@ -398,6 +399,8 @@ saveBtn.addEventListener('click', ()=>{
   persist();
   textEl.value = '';
   urlInput.value = '';
+  selectedCat = null;
+  renderComposerChips();
   linkField.classList.remove('show');
   saveBtn.disabled = true;
   renderList();
@@ -414,11 +417,28 @@ document.getElementById('exportBtn').addEventListener('click', async ()=>{
   }
 });
 
+// 共有シート/ショートカット経由での受け取り(?text= / ?url= / ?title=)
+function prefillFromQuery(){
+  const params = new URLSearchParams(window.location.search);
+  const sharedText = params.get('text') || params.get('title') || '';
+  const sharedUrl = params.get('url') || '';
+  if(sharedText || sharedUrl){
+    textEl.value = sharedText;
+    if(sharedUrl){
+      urlInput.value = sharedUrl;
+      linkField.classList.add('show');
+    }
+    updateSaveState();
+    history.replaceState(null, '', window.location.pathname);
+  }
+}
+
 // init
 load();
 renderComposerChips();
 renderFilterChips();
 renderList();
+prefillFromQuery();
 
 // service worker
 if('serviceWorker' in navigator){
